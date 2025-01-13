@@ -18,7 +18,7 @@ class Migrate extends BaseController
                 $params = $this->request->getGet();
 
         $client = new MongoDB();
-        $collection = $client->aws->entries;
+        $collection = $client->staging->entries;
 echo "te works";
 
 }

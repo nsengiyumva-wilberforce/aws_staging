@@ -93,11 +93,11 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 */
 defined('PER_PAGE')        OR define('PER_PAGE', 5000); 
 
-//defined('API_BASE_URL2')        OR define('API_BASE_URL2', 'https://dashboard.africawatersolutions.org/api/');
-//defined('API_BASE_URL')        OR define('API_BASE_URL', 'https://dashboard.africawatersolutions.org/api/index.php/app/');
-//defined('API_BASE_URLS')        OR define('API_BASE_URLS', 'https://dashboard.africawatersolutions.org/api/index.php/app/'); // no errors
+//defined('API_BASE_URL2')        OR define('API_BASE_URL2', 'https://dev.impact-outsourcing.com/api/');
+//defined('API_BASE_URL')        OR define('API_BASE_URL', 'https://dev.impact-outsourcing.com/api/index.php/app/');
+//defined('API_BASE_URLS')        OR define('API_BASE_URLS', 'https://dev.impact-outsourcing.com/api/index.php/app/'); // no errors
 // defined('API_BASE_URL')        OR define('API_BASE_URL', 'http://127.0.0.1/aws-api/index.php/app/'); // no errors
 //defined('API_BASE_URL')        OR define('API_BASE_URL', 'http://127.0.0.1/aws/api/public/'); // no errors
 
-defined('API_BASE_URL')        OR define('API_BASE_URL', 'https://dashboard.africawatersolutions.org/aws.api/public/');
-defined('API_BASE_URLS')        OR define('API_BASE_URLS', 'https://dashboard.africawatersolutions.org/api/index.php/app/'); // no errors
+defined('API_BASE_URL')        OR define('API_BASE_URL', 'https://dev.impact-outsourcing.com/aws.api/public/');
+defined('API_BASE_URLS')        OR define('API_BASE_URLS', 'https://dev.impact-outsourcing.com/api/index.php/app/'); // no errors

@@ -26,7 +26,7 @@ class Entry extends BaseController
 		$params = $this->request->getGet();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 
 		$query['form_id'] = $params['form_id'];
 		// {"created": {"$gt" : ISODate("2016-04-09T08:28:47") }},
@@ -126,7 +126,7 @@ class Entry extends BaseController
 		$params = $this->request->getGet();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 
 		if (isset($params['entry_form_id'])) {
 			$entry = $collection->findOne(['entry_form_id' => $params['entry_form_id']]);
@@ -221,7 +221,7 @@ class Entry extends BaseController
 		$params = $this->request->getGet();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 		$entry = $collection->findOne(['response_id' => $params['response_id']]);
 		if (isset($params['index'])) {
 			if (isset($entry->responses[$params['index']])) {
@@ -342,7 +342,7 @@ class Entry extends BaseController
 		$data['comp'] = $comp;
 		$data['followup_count'] = $number_of_responses - 1;
 		$data['baseline']['photo_file'] = $baseline['photo'] ?? null;
-		$data['media_directory'] = "https://dashboard.africawatersolutions.org/aws.api/writable/uploads/";
+		$data['media_directory'] = "https://dev.impact-outsourcing.com/aws.api/writable/uploads/";
 		if ($data) {
 			$response = [
 				'status' => 200,
@@ -363,7 +363,7 @@ class Entry extends BaseController
 		$params = $this->request->getGet();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 
 		$last_date = NULL;
 
@@ -492,7 +492,7 @@ class Entry extends BaseController
 		$params = $this->request->getGet();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 
 		$user_map = $utility->mobile_user_mapper();
 
@@ -636,7 +636,7 @@ class Entry extends BaseController
 		$params = $this->request->getGet();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 
 		$startdate = $params['year'] . '-01-01 00:00:00';
 		$enddate = $params['year'] . '-12-30 23:59:59';
@@ -675,7 +675,7 @@ class Entry extends BaseController
 		$utility = new Utility();
 		$params = $this->request->getGet();
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 
 		$query['form_id'] = $params['form_id'];
 		if (isset($params['region_id']) && $params['region_id'] != 0) {
@@ -771,7 +771,7 @@ class Entry extends BaseController
 		$params = $this->request->getGet();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 
 		$entry = $collection->findOne(['response_id' => $params['response_id']]);
 		// $entry = json_decode(json_encode($entry), TRUE);
@@ -850,7 +850,7 @@ class Entry extends BaseController
 			$params = $this->request->getGet();
 
 			$client = new MongoDB();
-			$collection = $client->aws->entries;
+			$collection = $client->staging->entries;
 
 			$aggregation = [];
 
@@ -933,7 +933,7 @@ class Entry extends BaseController
 		$params['region_id'] = $params['field_id'];
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 
 		$aggregation = [];
 
@@ -1069,7 +1069,7 @@ class Entry extends BaseController
 			$params['responses'][0]->updated_at = date('Y-m-d H:i:s');
 
 			$client = new MongoDB();
-			$collection = $client->aws->entries;
+			$collection = $client->staging->entries;
 
 			// Check if entry exists
 			$query = array('response_id' => $params['response_id']);
@@ -1105,7 +1105,7 @@ class Entry extends BaseController
 		$params['responses'] = array(json_decode($params['responses']));
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 		$updateResult = $collection->updateOne(
 			// [ 'entry_form_id' => $params['entry_form_id'] ],
 			['response_id' => $params['response_id']],
@@ -1136,7 +1136,7 @@ class Entry extends BaseController
 		$params = $this->request->getPost();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 		$entry = $collection->findOne(['response_id' => $params['response_id']]);
 		$responses_count = count($entry->responses);
 		$index = $responses_count - 1;
@@ -1195,7 +1195,7 @@ class Entry extends BaseController
 		$params = $this->request->getPost();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 		$entry = $collection->findOne(['response_id' => $params['response_id']]);
 		$responses_count = count($entry->responses);
 		$index = $responses_count - 1;
@@ -1259,7 +1259,7 @@ class Entry extends BaseController
 		$params = $this->request->getPost();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 		$updateResult = $collection->updateOne(
 			// [ 'entry_form_id' => $params['entry_form_id'] ],
 			['response_id' => $params['response_id']],
@@ -1300,7 +1300,7 @@ class Entry extends BaseController
 		$params = $this->request->getPost();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 
 		//get the response at the specified index and set rejection_status to "rejected"
 		$updateResult = $collection->updateOne(
@@ -1329,7 +1329,7 @@ class Entry extends BaseController
 		$params = $this->request->getPost();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 		$entry = $collection->findOne(['response_id' => $params['response_id']]);
 		//just upload the photo and replace the existing photo
 		// convert file form base64 and upload it
@@ -1376,7 +1376,7 @@ class Entry extends BaseController
 		$params = $this->request->getPost();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 
 		//get the response at the specified index and set rejection_status to "rejected"
 		$updateResult = $collection->updateOne(
@@ -1410,7 +1410,7 @@ class Entry extends BaseController
 		$user_id = $params['user_id'];
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 
 		$aggregation = [];
 
@@ -1471,7 +1471,7 @@ class Entry extends BaseController
 		$params = $this->request->getPost();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 
 		$query = array('response_id' => $params['response_id']);
 		$count = $collection->count($query);
@@ -1502,7 +1502,7 @@ class Entry extends BaseController
 		ini_set('memory_limit', '1024M');
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 
 		$builder = $this->db->table('response');
 
@@ -1617,7 +1617,7 @@ class Entry extends BaseController
 		$params = $this->request->getGet();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
@@ -1721,7 +1721,7 @@ class Entry extends BaseController
 		$params = $this->request->getGet();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
@@ -1767,7 +1767,7 @@ class Entry extends BaseController
 		$params = $this->request->getGet();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
@@ -1813,7 +1813,7 @@ class Entry extends BaseController
 		$params = $this->request->getGet();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
@@ -1859,7 +1859,7 @@ class Entry extends BaseController
 		$params = $this->request->getGet();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 
 		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];
@@ -1906,7 +1906,7 @@ class Entry extends BaseController
 		$params = $this->request->getGet();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 
 		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];
@@ -1952,7 +1952,7 @@ class Entry extends BaseController
 		$params = $this->request->getGet();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 
 		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];

@@ -850,7 +850,7 @@ class App_model extends CI_Model {
 
 	public function get_app_list()
 	{
-		$query = $this->db->query("SELECT * FROM information_schema.tables WHERE table_name LIKE 'app_%' AND table_schema = 'aws'");
+		$query = $this->db->query("SELECT * FROM information_schema.tables WHERE table_name LIKE 'app_%' AND table_schema = 'staging_aws'");
 		return $query->result();
 	}
 

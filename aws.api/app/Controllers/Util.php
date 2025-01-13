@@ -79,7 +79,7 @@ class Util extends BaseController
 	public function app_tables()
 	{
 		// $query = $this->db->query("SELECT TABLE_NAME AS app_list FROM information_schema.tables WHERE table_name LIKE 'app_%' AND table_schema = 'aws'");
-		$query = $this->db->query("SELECT * FROM information_schema.tables WHERE table_name LIKE 'app_%' AND table_schema = 'aws'");
+		$query = $this->db->query("SELECT * FROM information_schema.tables WHERE table_name LIKE 'app_%' AND table_schema = 'staging_aws'");
 		$tables = $query->getResult();
 
 		$table_list = [];
@@ -99,7 +99,7 @@ class Util extends BaseController
 	public function overview_counter()
 	{
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 		$data['entries'] = $collection->countDocuments();
 		$data['forms'] = $this->db->query('SELECT * FROM question_form')->getNumRows();
 		$data['mobile_users'] = $this->db->query('SELECT * FROM user')->getNumRows();

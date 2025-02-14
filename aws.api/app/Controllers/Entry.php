@@ -1136,7 +1136,7 @@ class Entry extends BaseController
 		$params = $this->request->getPost();
 
 		$client = new MongoDB();
-		$collection = $client->staging->entries;
+		$collection = $client->aws->entries;
 		$entry = $collection->findOne(['response_id' => $params['response_id']]);
 		$responses_count = count($entry->responses);
 		$index = $responses_count - 1;
@@ -1158,10 +1158,14 @@ class Entry extends BaseController
 		file_put_contents($file_path, $decoded);
 
 
-		// Check if 'photo_file' field exists in the responses array at the specified index
-		if (!isset($entry['responses'][$index][0]['photo_file'])) {
-			// If not, update the document structure to include 'photo_file' in the responses array
-			$entry->responses[$index][0]->photo_file = $params['filename'];
+		if ($index > 0) {
+			// Check if 'photo_file' field exists in the responses array at the specified index
+			if (!isset($entry['responses'][$index][0]['photo_file'])) {
+				// If not, update the document structure to include 'photo_file' in the responses array
+				$entry->responses[$index][0]->photo_file = $params['filename'];
+			}
+		} else {
+			$entry->responses[0]->photo_file = $params['filename'];
 		}
 
 		// Update the document

@@ -1136,7 +1136,7 @@ class Entry extends BaseController
 		$params = $this->request->getPost();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 		$entry = $collection->findOne(['response_id' => $params['response_id']]);
 		$responses_count = count($entry->responses);
 		$index = $responses_count - 1;
@@ -1156,7 +1156,6 @@ class Entry extends BaseController
 		// Save the binary data to a file
 		$file_path = WRITEPATH . 'uploads/' . $params['filename'];
 		file_put_contents($file_path, $decoded);
-
 
 		if ($index > 0) {
 			// Check if 'photo_file' field exists in the responses array at the specified index

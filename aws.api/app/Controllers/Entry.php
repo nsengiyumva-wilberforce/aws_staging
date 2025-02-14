@@ -1157,14 +1157,11 @@ class Entry extends BaseController
 		$file_path = WRITEPATH . 'uploads/' . $params['filename'];
 		file_put_contents($file_path, $decoded);
 
-		if ($index > 0) {
-			// Check if 'photo_file' field exists in the responses array at the specified index
-			if (!isset($entry['responses'][$index][0]['photo_file'])) {
-				// If not, update the document structure to include 'photo_file' in the responses array
-				$entry->responses[$index][0]->photo_file = $params['filename'];
-			}
-		} else {
-			$entry->responses[0]->photo_file = $params['filename'];
+
+		// Check if 'photo_file' field exists in the responses array at the specified index
+		if (!isset($entry['responses'][$index][0]['photo_file'])) {
+			// If not, update the document structure to include 'photo_file' in the responses array
+			$entry->responses[$index][0]->photo_file = $params['filename'];
 		}
 
 		// Update the document

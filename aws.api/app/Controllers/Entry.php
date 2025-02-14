@@ -1129,9 +1129,7 @@ class Entry extends BaseController
 	}
 
 
-	// create entry photo (base64)
-
-	y_photo()
+	public function create_last_entry_photo()
 	{
 		$params = $this->request->getPost();
 

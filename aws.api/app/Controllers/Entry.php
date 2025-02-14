@@ -1129,12 +1129,14 @@ class Entry extends BaseController
 	}
 
 
+	// create entry photo (base64)
+
 	public function create_last_entry_photo()
 	{
 		$params = $this->request->getPost();
 
 		$client = new MongoDB();
-		$collection = $client->aws->entries;
+		$collection = $client->staging->entries;
 		$entry = $collection->findOne(['response_id' => $params['response_id']]);
 		$responses_count = count($entry->responses);
 		$index = $responses_count - 1;
@@ -1155,11 +1157,14 @@ class Entry extends BaseController
 		$file_path = WRITEPATH . 'uploads/' . $params['filename'];
 		file_put_contents($file_path, $decoded);
 
-
-		// Check if 'photo_file' field exists in the responses array at the specified index
-		if (!isset($entry['responses'][$index][0]['photo_file'])) {
-			// If not, update the document structure to include 'photo_file' in the responses array
-			$entry->responses[$index][0]->photo_file = $params['filename'];
+		if ($index > 0) {
+			// Check if 'photo_file' field exists in the responses array at the specified index
+			if (!isset($entry['responses'][$index][0]['photo_file'])) {
+				// If not, update the document structure to include 'photo_file' in the responses array
+				$entry->responses[$index][0]->photo_file = $params['filename'];
+			}
+		} else {
+			$entry->responses[0]->photo_file = $params['filename'];
 		}
 
 		// Update the document

@@ -392,17 +392,15 @@ class Entry extends BaseController
 				$query['responses.qn148'] = $params['project'];
 			}
 
-			if (isset($params['set_followup_interval'])) {
-				// echo date('Y-m-d H:i:s', strtotime('-7 days'));
-				$last_date = date('Y-m-d H:i:s', strtotime('-' . $params['set_followup_interval'] . ' days'));
-				$query['responses.updated_at'] = array('$lte' => $last_date);
-			}
+			$followup_interval = $utility->follow_up_interval($params['form_id']);
 
-			$date = '2024-11-01 00:00:00';
-			// $query['responses.created_at'] = array('$gte' => $date);
+			// echo date('Y-m-d H:i:s', strtotime('-7 days'));
+			$last_date = date('Y-m-d H:i:s', strtotime('-' . $followup_interval . ' days'));
 
-			// $emb_doc_filter['created_at'] = array('$gte' => $params['start_date'], '$lte' => $params['end_date']);
-			// echo json_encode($query); exi
+			// $query['responses.updated_at'] = array('$lte' => $last_date);
+
+
+			// Use aggregation pipeline to filter by last response's created_at
 			$pipeline = [
 				['$match' => $query],  // Apply all existing filters
 				['$addFields' => [
@@ -422,7 +420,7 @@ class Entry extends BaseController
 					]
 				]],
 				['$match' => [
-					'lastResponse.created_at' => ['$gte' => $date]
+					'lastResponse.created_at' => ['$lte' => $last_date]
 				]],
 				['$project' => [
 					'_id' => 0,
@@ -443,6 +441,7 @@ class Entry extends BaseController
 			$new_data = [];
 
 			foreach ($data as $entry) {
+
 				$title_str = '';
 				foreach ($form_titles['title'] as $item) {
 					if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {

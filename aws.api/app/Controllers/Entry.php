@@ -359,116 +359,116 @@ class Entry extends BaseController
 	public function downloadable_region_entries()
 	{
 		ini_set('memory_limit', '512M');
-		$utility = new Utility();
-		$params = $this->request->getGet();
+		try {
+			$utility = new Utility();
+			$params = $this->request->getGet();
 
-		$client = new MongoDB();
-		$collection = $client->staging->entries;
+			$client = new MongoDB();
+			$collection = $client->staging->entries;
 
-		$last_date = NULL;
+			$last_date = NULL;
 
-		if (isset($params['region_id'])) {
-			$district_list = $utility->region_district_array($params['region_id']);
-			$query['responses.qn4'] = ['$in' => $district_list];
-		}
-
-		if (isset($params['form_id'])) {
-			$query['form_id'] = $params['form_id'];
-			// Get Followup interval
-			$form = $this->db->table('question_form')->where('form_id', $params['form_id'])->get()->getRow();
-			if (!is_null($form->followup_interval)) {
-				$followup_interval = $form->followup_interval;
-				$last_date = date('Y-m-d H:i:s', strtotime('-' . $followup_interval . ' days'));
-				$query['updated_at'] = array('$lte' => $last_date);
+			if (isset($params['region_id'])) {
+				$district_list = $utility->region_district_array($params['region_id']);
+				$query['responses.qn4'] = ['$in' => $district_list];
 			}
-		}
 
-		//if (isset($params['creator_id'])) {
-		//	$query['responses.creator_id'] = $params['creator_id'];
-		//}
-
-		if (isset($params['project'])) {
-			$query['responses.qn148'] = $params['project'];
-		}
-
-		if (isset($params['set_followup_interval'])) {
-			// echo date('Y-m-d H:i:s', strtotime('-7 days'));
-			$last_date = date('Y-m-d H:i:s', strtotime('-' . $params['set_followup_interval'] . ' days'));
-			$query['updated_at'] = array('$lte' => $last_date);
-		}
-
-		$date = '2023-11-01 00:00:00';
-		$query['responses.created_at'] = array('$gte' => $date);
-
-		// $emb_doc_filter['created_at'] = array('$gte' => $params['start_date'], '$lte' => $params['end_date']);
-		// echo json_encode($query); exi
-		$project = array(
-			'projection' => array(
-				'_id' => 0,
-				'response_id' => 1,
-				'form_id' => 1,
-				'created_at' => 1,
-				'updated_at' => 1,
-				// 'responses' => ['$sort' => -1, '$slice' => 1]
-				'responses' => 1
-				// 'responses' => $emb_doc_filter
-			)
-		);
-		$data = $collection->find($query, $project)->toArray();
-
-		// Get form title ids
-		$form_titles = $utility->form_titles($params['form_id']);
-
-		// Cleaning values to only return needed data
-		$new_data = [];
-
-		foreach ($data as $entry) {
-			$title_str = '';
-			foreach ($form_titles['title'] as $item) {
-				if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
-					$title_str .= $entry['responses'][0]['qn' . $item][0];
-				} else {
-					$title_str .= $entry['responses'][0]['qn' . $item];
+			if (isset($params['form_id'])) {
+				$query['form_id'] = $params['form_id'];
+				// Get Followup interval
+				$form = $this->db->table('question_form')->where('form_id', $params['form_id'])->get()->getRow();
+				if (!is_null($form->followup_interval)) {
+					$followup_interval = $form->followup_interval;
+					$last_date = date('Y-m-d H:i:s', strtotime('-' . $followup_interval . ' days'));
+					$query['responses.updated_at'] = array('$lte' => $last_date);
 				}
 			}
-			$entry['title'] = $title_str != '' ? $title_str : 'Unknown Title';
 
-			$sub_title_str = '';
-			foreach ($form_titles['sub_title'] as $item) {
-				if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
-					$sub_title_str .= $entry['responses'][0]['qn' . $item][0];
-				} else {
-					$sub_title_str .= $entry['responses'][0]['qn' . $item];
+			//if (isset($params['creator_id'])) {
+			//	$query['responses.creator_id'] = $params['creator_id'];
+			//}
+
+			if (isset($params['project'])) {
+				$query['responses.qn148'] = $params['project'];
+			}
+
+			if (isset($params['set_followup_interval'])) {
+				// echo date('Y-m-d H:i:s', strtotime('-7 days'));
+				$last_date = date('Y-m-d H:i:s', strtotime('-' . $params['set_followup_interval'] . ' days'));
+				$query['responses.updated_at'] = array('$lte' => $last_date);
+			}
+
+			$date = '2024-11-01 00:00:00';
+			$query['responses.created_at'] = array('$gte' => $date);
+
+			// $emb_doc_filter['created_at'] = array('$gte' => $params['start_date'], '$lte' => $params['end_date']);
+			// echo json_encode($query); exi
+			$project = array(
+				'projection' => array(
+					'_id' => 0,
+					'response_id' => 1,
+					'form_id' => 1,
+					'created_at' => 1,
+					'updated_at' => 1,
+					// 'responses' => ['$sort' => -1, '$slice' => 1]
+					'responses' => 1
+					// 'responses' => $emb_doc_filter
+				)
+			);
+			$data = $collection->find($query, $project)->toArray();
+
+			// Get form title ids
+			$form_titles = $utility->form_titles($params['form_id']);
+
+			// Cleaning values to only return needed data
+			$new_data = [];
+
+			foreach ($data as $entry) {
+				$title_str = '';
+				foreach ($form_titles['title'] as $item) {
+					if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
+						$title_str .= $entry['responses'][0]['qn' . $item][0];
+					} else {
+						$title_str .= $entry['responses'][0]['qn' . $item];
+					}
 				}
+				$entry['title'] = $title_str != '' ? $title_str : 'Unknown Title';
+
+				$sub_title_str = '';
+				foreach ($form_titles['sub_title'] as $item) {
+					if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
+						$sub_title_str .= $entry['responses'][0]['qn' . $item][0];
+					} else {
+						$sub_title_str .= $entry['responses'][0]['qn' . $item];
+					}
+				}
+				$entry['sub_title'] = $sub_title_str != '' ? $sub_title_str : 'Unknown Sub Title';
+
+				if (isset($entry['responses'][0]['qn4'])) {
+					$entry['district'] = $entry['responses'][0]['qn4'];
+				}
+				if (isset($entry['responses'][0]['qn7'])) {
+					$entry['sub_county'] = $entry['responses'][0]['qn7'];
+				}
+				if (isset($entry['responses'][0]['qn8'])) {
+					$entry['parish'] = $entry['responses'][0]['qn8'];
+				}
+				if (isset($entry['responses'][0]['qn9'])) {
+					$entry['village'] = $entry['responses'][0]['qn9'];
+				}
+
+				$user_map = $utility->mobile_user_mapper();
+				// Fetch first creator information
+
+
+				$entry['creator_id'] = $user_map[$entry['responses'][0]['creator_id'] ?? "72"];
+
+				$new_data[] = $entry;
 			}
-			$entry['sub_title'] = $sub_title_str != '' ? $sub_title_str : 'Unknown Sub Title';
-
-			if (isset($entry['responses'][0]['qn4'])) {
-				$entry['district'] = $entry['responses'][0]['qn4'];
-			}
-			if (isset($entry['responses'][0]['qn7'])) {
-				$entry['sub_county'] = $entry['responses'][0]['qn7'];
-			}
-			if (isset($entry['responses'][0]['qn8'])) {
-				$entry['parish'] = $entry['responses'][0]['qn8'];
-			}
-			if (isset($entry['responses'][0]['qn9'])) {
-				$entry['village'] = $entry['responses'][0]['qn9'];
-			}
-
-			$user_map = $utility->mobile_user_mapper();
-			// Fetch first creator information
-
-
-			$entry['creator_id'] = $user_map[$entry['responses'][0]['creator_id'] ?? "72"];
-
-			$new_data[] = $entry;
-
+		} catch (Exception $e) {
+			//print the message
+			echo $e->getMessage();
 		}
-
-
-
-
 
 		if ($data) {
 			$response = [
@@ -479,8 +479,6 @@ class Entry extends BaseController
 		} else {
 			return $this->failNotFound();
 		}
-
-		// 	echo json_encode($query); exit;
 	}
 
 

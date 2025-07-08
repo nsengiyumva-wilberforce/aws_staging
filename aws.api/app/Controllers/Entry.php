@@ -399,47 +399,23 @@ class Entry extends BaseController
 			}
 
 			$date = '2024-11-01 00:00:00';
-			// Use aggregation pipeline to filter by latest response's created_at
-			$pipeline = [
-				// Match other query filters first
-				['$match' => $query],
-				// Unwind responses array
-				['$unwind' => '$responses'],
-				// Sort by responses.created_at descending
-				['$sort' => ['responses.created_at' => -1]],
-				// Group back by _id, keeping only the latest response
-				['$group' => [
-					'_id' => '$_id',
-					'doc' => ['$first' => '$$ROOT'],
-					'latest_response' => ['$first' => '$responses']
-				]],
-				// Replace root with the document and attach latest_response
-				['$addFields' => [
-					'doc.responses' => ['$cond' => [
-						['$isArray' => '$doc.responses'],
-						[
-							'$concatArrays' => [
-								['$slice' => ['$doc.responses', 0, 0]], // empty array
-								[['$mergeObjects' => '$latest_response']]
-							]
-						],
-						['$doc.responses']
-					]]
-				]],
-				['$replaceRoot' => ['newRoot' => '$doc']],
-				// Now filter by latest response's created_at
-				['$match' => ['responses.created_at' => ['$gte' => $date]]],
-				// Project as before
-				['$project' => [
+			$query['responses.created_at'] = array('$gte' => $date);
+
+			// $emb_doc_filter['created_at'] = array('$gte' => $params['start_date'], '$lte' => $params['end_date']);
+			// echo json_encode($query); exi
+			$project = array(
+				'projection' => array(
 					'_id' => 0,
 					'response_id' => 1,
 					'form_id' => 1,
 					'created_at' => 1,
 					'updated_at' => 1,
+					'responses' => ['$sort' => -1, '$slice' => 1],
 					'responses' => 1
-				]],
-			];
-			$data = $collection->aggregate($pipeline)->toArray();
+					// 'responses' => $emb_doc_filter
+				)
+			);
+			$data = $collection->find($query, $project)->toArray();
 
 			// Get form title ids
 			$form_titles = $utility->form_titles($params['form_id']);

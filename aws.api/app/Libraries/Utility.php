@@ -17,6 +17,17 @@ class Utility
         return array('title' => $title, 'sub_title' => $sub_title);
     }
 
+        public function follow_up_interval($form_id)
+    {
+        $db = \Config\Database::connect();
+        $form = $db->table('question_form')->where('form_id', $form_id)->get()->getRow();
+        if (isset($form->followup_interval)) {
+            return $form->followup_interval;
+        } else {
+            return 7; // Default follow-up interval in days
+        }
+    }
+
 
     public function region_district_array($region_id)
     {

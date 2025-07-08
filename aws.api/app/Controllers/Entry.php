@@ -399,23 +399,42 @@ class Entry extends BaseController
 			}
 
 			$date = '2024-11-01 00:00:00';
-			$query['responses.updated_at'] = array('$gte' => $date);
+			$query['responses.created_at'] = array('$gte' => $date);
 
 			// $emb_doc_filter['created_at'] = array('$gte' => $params['start_date'], '$lte' => $params['end_date']);
 			// echo json_encode($query); exi
-			$project = array(
-				'projection' => array(
+			$pipeline = [
+				['$match' => $query],  // Apply all existing filters
+				['$addFields' => [
+					'lastResponse' => [
+						'$let' => [
+							'vars' => [
+								'lastElem' => ['$arrayElemAt' => ['$responses', -1]]
+							],
+							'in' => [
+								'$cond' => [
+									'if' => ['$isArray' => '$$lastElem'],
+									'then' => ['$arrayElemAt' => ['$$lastElem', 0]],
+									'else' => '$$lastElem'
+								]
+							]
+						]
+					]
+				]],
+				['$match' => [
+					'lastResponse.created_at' => ['$gte' => $date]
+				]],
+				['$project' => [
 					'_id' => 0,
 					'response_id' => 1,
 					'form_id' => 1,
 					'created_at' => 1,
 					'updated_at' => 1,
-					'responses' => ['$sort' => -1, '$slice' => 1],
 					'responses' => 1
-					// 'responses' => $emb_doc_filter
-				)
-			);
-			$data = $collection->find($query, $project)->toArray();
+				]]
+			];
+
+			$data = $collection->aggregate($pipeline)->toArray();
 
 			// Get form title ids
 			$form_titles = $utility->form_titles($params['form_id']);

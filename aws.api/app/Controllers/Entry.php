@@ -399,7 +399,7 @@ class Entry extends BaseController
 			}
 
 			$date = '2024-11-01 00:00:00';
-			$query['responses.created_at'] = array('$gte' => $date);
+			// $query['responses.created_at'] = array('$gte' => $date);
 
 			// $emb_doc_filter['created_at'] = array('$gte' => $params['start_date'], '$lte' => $params['end_date']);
 			// echo json_encode($query); exi

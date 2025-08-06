@@ -30,7 +30,7 @@ class Utility
 
             foreach ($questions as $question) {
                 if (isset($question->answer_values) && !is_null($question->answer_values)) {
-                    $answer_values = json_decode($question->answer_type_values, TRUE);
+                    $answer_values = json_decode($question->answer_values, TRUE);
                     if (isset($answer_values['db_table']) && $answer_values['db_table'] === 'app_district') {
                         $district_key = $question->question_id;
                         break;

@@ -521,6 +521,8 @@ class Entry extends BaseController
 			$district_list = $utility->region_district_array($params['region_id']);
 			//get district key for the form
 			$district_key = $utility->form_district_key($params['form_id']);
+
+			var_dump($district_key);
 			$query['responses.qn' . $district_key] = ['$in' => $district_list];
 		}
 

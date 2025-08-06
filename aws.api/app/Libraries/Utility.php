@@ -37,7 +37,7 @@ class Utility
                 }
             }
         }
-        return $district_key??4;
+        return $district_key;
     }
 
         public function follow_up_interval($form_id)

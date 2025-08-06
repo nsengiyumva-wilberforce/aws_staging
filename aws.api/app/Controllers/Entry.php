@@ -523,8 +523,6 @@ class Entry extends BaseController
 			$district_key = $utility->form_district_key($params['form_id']);
 
 			$query['responses.qn' . $district_key] = ['$in' => $district_list];
-
-			var_dump($query);
 		}
 
 		// Add date filter

@@ -24,15 +24,12 @@ class Utility
         $question_ids = json_decode($form->question_list);
         $question_ids_list = implode(',', $question_ids);
 
-        var_dump($question_ids_list);
-
-
         $district_key = NULL;
         if ($question_ids) {
             $questions = $db->table('question')->whereIn('question_id', $question_ids)->orderBy('FIELD(question_id, '.$question_ids_list.')')->get()->getResult();
-            var_dump($questions);
+
             foreach ($questions as $question) {
-                if (isset($question->answer_type_values) && !is_null($question->answer_type_values)) {
+                if (isset($question->answer_values) && !is_null($question->answer_values)) {
                     $answer_values = json_decode($question->answer_type_values, TRUE);
                     if (isset($answer_values['db_table']) && $answer_values['db_table'] === 'app_district') {
                         $district_key = $question->question_id;

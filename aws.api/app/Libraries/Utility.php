@@ -17,6 +17,29 @@ class Utility
         return array('title' => $title, 'sub_title' => $sub_title);
     }
 
+        public function form_district_key($form_id)
+    {
+        $db = \Config\Database::connect();
+        $form = $db->table('question_form')->where('form_id', $form_id)->get()->getRow();
+        $question_ids = json_decode($form->question_list);
+        $question_ids_list = implode(',', $question_ids);
+
+        $district_key = NULL;
+        if ($question_ids) {
+            $questions = $db->table('question')->whereIn('question_id', $question_ids)->orderBy('FIELD(question_id, '.$question_ids_list.')')->get()->getResult();
+            foreach ($questions as $question) {
+                if (isset($question->answer_type_values) && !is_null($question->answer_type_values)) {
+                    $answer_values = json_decode($question->answer_type_values, TRUE);
+                    if (isset($answer_values['db_table']) && $answer_values['db_table'] === 'app_district') {
+                        $district_key = $question->question_id;
+                        break;
+                    }
+                }
+            }
+        }
+        return $district_key??4;
+    }
+
         public function follow_up_interval($form_id)
     {
         $db = \Config\Database::connect();

@@ -6,32 +6,51 @@ use CodeIgniter\Model;
 
 class UserModel extends Model
 {
-    protected $table      = 'user';
-    protected $primaryKey = 'user_id';
+    /**
+     * The table associated with this model.
+     * This is the most important change to ensure you are reading from the correct table.
+     */
+    protected $table            = 'user';
 
-    // protected $returnType = 'array';
-    protected $useSoftDeletes = true;
+    protected $primaryKey       = 'user_id';
+    protected $useAutoIncrement = true;
+    protected $returnType       = 'object';
+    protected $useSoftDeletes   = false;
 
-    protected $allowedFields = ['first_name', 'last_name', 'email', 'password', 'role_id', 'region_id', 'date_created', 'active'];
+    /**
+     * An array of field names that are allowed to be saved to the database.
+     * This is a security feature to prevent mass assignment vulnerabilities.
+     */
+    protected $allowedFields    = [
+        'first_name',
+        'last_name',
+        'email',
+        'password',
+        'role_id',
+        'region_id',
+        'active',
+        'date_created'
+    ];
 
-    protected $useTimestamps = true;
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
-    protected $deletedField  = 'deleted_at';
+    // Callbacks
+    protected $beforeInsert   = ['hashPassword'];
+    protected $beforeUpdate   = ['hashPassword'];
 
-    // protected $validationRules    = [];
-    // protected $validationMessages = [];
-    // protected $skipValidation     = false;
-
-
-    protected $beforeInsert = ['beforeInsert'];
-    // protected $beforeUpdate = ['beforeUpdate'];
-    // protected $beforeDelete = ['beforeDelete'];
-
-    protected function beforeInsert(array $data): array
+    /**
+     * A callback function that is executed before a new record is inserted
+     * or an existing one is updated. It automatically hashes the password.
+     */
+    protected function hashPassword(array $data)
     {
-        $data['data']['active'] = 1;
+        if (! isset($data['data']['password'])) {
+            return $data;
+        }
+
+        // Don't re-hash if the password hasn't changed
+        if (strlen($data['data']['password']) < 60) {
+            $data['data']['password'] = password_hash($data['data']['password'], PASSWORD_DEFAULT);
+        }
+        
         return $data;
     }
-
 }

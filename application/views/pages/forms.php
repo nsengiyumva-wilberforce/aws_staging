@@ -2,7 +2,7 @@
 	<h1 class="h2">Forms</h1>
 	<div class="btn-toolbar mb-2 mb-md-0">
 		<!-- Button trigger modal -->
-		<?php if ($this->session->permissions->create_form): ?>
+			<?php if ($this->session->userdata('permissions') && isset($this->session->userdata('permissions')->create_form) && $this->session->userdata('permissions')->create_form): ?>
 		<button type="button" class="btn btn-sm btn-outline-secondary" data-toggle="modal" data-target="#exampleModal">
 			<i data-feather="plus-square"></i>
 			Form Builder
@@ -29,10 +29,10 @@
 				<td>
 					<nav class="nav d-inline-flex">
 						<a class="nav-link py-0" data-toggle="View" title="View" href="<?= base_url('form/'.$form->form_id) ?>"><i data-feather="eye"></i></a>
-						<?php if ($this->session->permissions->edit_form): ?>
+						<?php if ($this->session->userdata('permissions') && isset($this->session->userdata('permissions')->edit_form) && $this->session->userdata('permissions')->edit_form): ?>
 						<a class="nav-link py-0" data-toggle="Edit" title="Edit" href="<?= base_url('form/'.$form->form_id.'/edit') ?>"><i data-feather="edit-2"></i></a>
 						<?php endif; ?>
-						<?php if ($this->session->permissions->delete_form): ?>
+						<?php if ($this->session->userdata('permissions') && isset($this->session->userdata('permissions')->delete_form) && $this->session->userdata('permissions')->delete_form): ?>
 						<a class="nav-link py-0 confirm-delete" data-toggle="Delete" title="Delete" href="<?= base_url('form/'.$form->form_id.'/delete') ?>"><i data-feather="trash"></i></a>
 						<?php endif; ?>
 					</nav>

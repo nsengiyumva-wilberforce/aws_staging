@@ -1,7 +1,7 @@
 	<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 		<h1 class="h2">Dashboard Users</h1>
 		<div class="btn-toolbar mb-2 mb-md-0">
-			<?php if ($this->session->permissions->create_admins): ?>
+			<?php if ($this->session->userdata('permissions') && isset($this->session->userdata('permissions')->create_user) && $this->session->userdata('permissions')->create_user): ?>
 			<a href="<?=  base_url('dashboard-user/add') ?>" class="btn btn-sm btn-outline-secondary mr-1">
 				<i data-feather="plus"></i>
 				Add User
@@ -38,10 +38,10 @@
 					<td>
 						<nav class="nav d-inline-flex">
 							<a class="nav-link py-0" data-toggle="View" title="View" href="<?= base_url('dashboard-user/'.$user->user_id) ?>"><i data-feather="eye"></i></a>
-							<?php if ($this->session->permissions->edit_admins): ?>
+							<?php if ($this->session->userdata('permissions') && isset($this->session->userdata('permissions')->edit_admins) && $this->session->userdata('permissions')->edit_admins): ?>
 							<a class="nav-link py-0" data-toggle="Edit" title="Edit" href="<?= base_url('dashboard-user/'.$user->user_id.'/edit') ?>"><i data-feather="edit-2"></i></a>
 							<?php endif; ?>
-							<?php if ($this->session->permissions->delete_admins): ?>
+							<?php if ($this->session->userdata('permissions') && isset($this->session->userdata('permissions')->delete_admins) && $this->session->userdata('permissions')->delete_admins): ?>
 							<a class="nav-link py-0 confirm-delete" data-toggle="Delete" title="Delete" href="<?= base_url('dashboard-user/'.$user->user_id.'/delete') ?>"><i data-feather="trash"></i></a>
 							<?php endif; ?>
 						</nav>

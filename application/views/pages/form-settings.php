@@ -10,6 +10,7 @@
 <h3><?= $form->title ?></h3>
 
 <form id="form-update-form" class="mb-5" action="<?= base_url('form/update-form/'.$form->form_id) ?>" method="POST">
+	<input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
 	<div class="form-group">
 		<label>Form Title</label>
 		<input type="text" class="form-control" name="title" placeholder="Untitled Form" value="<?= $form->title ?>">

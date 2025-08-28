@@ -1,7 +1,7 @@
 	<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 		<h1 class="h2">Mobile Users</h1>
 		<div class="btn-toolbar mb-2 mb-md-0">
-			<?php if ($this->session->permissions->create_user): ?>	
+			<?php if ($this->session->userdata('permissions') && isset($this->session->userdata('permissions')->create_user) && $this->session->userdata('permissions')->create_user): ?>
 			<a href="<?=  base_url('mobile-user/add') ?>" class="btn btn-sm btn-outline-secondary mr-1">
 				<i data-feather="plus"></i>
 				Add User
@@ -27,11 +27,11 @@
 				</tr>
 			</thead>
 			<tbody>
-				<?php foreach ($users as $user): ?>
+				<?php if (isset($users) && $users) foreach ($users as $user): ?>
 				<tr>
-					<td><a href="<?= base_url('mobile-user/'.$user->user_id) ?>"><?= trim($user->first_name.' '.$user->last_name) ?></a></td>
-					<td><?= $user->region_name ?></td>
-					<td><?= $user->email ?></td>
+					<td><a href="<?= base_url('mobile-user/'.$user->user_id) ?>"><?= htmlspecialchars(trim($user->first_name.' '.$user->last_name), ENT_QUOTES, 'UTF-8') ?></a></td>
+					<td><?= htmlspecialchars($user->region_name, ENT_QUOTES, 'UTF-8') ?></td>
+					<td><?= htmlspecialchars($user->email, ENT_QUOTES, 'UTF-8') ?></td>
 					<td><?= $user->active ? 'Active' : 'Deactiveted' ?></td>
 					<td>
 						<nav class="nav d-inline-flex">

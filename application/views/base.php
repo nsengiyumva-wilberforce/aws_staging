@@ -66,7 +66,7 @@
 								Dashboard
 							</a>
 						</li>
-						<?php if ($this->session->permissions->view_form): ?>
+						<?php if ($this->session->userdata('permissions') && isset($this->session->userdata('permissions')->view_form) && $this->session->userdata('permissions')->view_form): ?>
 							<li class="nav-item">
 								<a class="nav-link <?= $page_name == 'forms' ? 'active' : '' ?>"
 									href="<?= base_url('forms') ?>">
@@ -75,7 +75,7 @@
 								</a>
 							</li>
 						<?php endif; ?>
-						<?php if ($this->session->permissions->view_response): ?>
+						<?php if ($this->session->userdata('permissions') && isset($this->session->userdata('permissions')->view_response) && $this->session->userdata('permissions')->view_response): ?>
 							<li class="nav-item">
 								<a class="nav-link <?= $page_name == 'entries' || $page_name == 'form-entries' ? 'active' : '' ?>"
 									href="<?= base_url('entries') ?>">
@@ -84,7 +84,7 @@
 								</a>
 							</li>
 						<?php endif; ?>
-						<?php if ($this->session->permissions->view_reports): ?>
+						<?php if ($this->session->userdata('permissions') && isset($this->session->userdata('permissions')->view_reports) && $this->session->userdata('permissions')->view_reports): ?>
 							<li class="nav-item">
 								<a class="nav-link <?= $page_name == 'reports' ? 'active' : '' ?>"
 									href="<?= base_url('reports') ?>">
@@ -109,7 +109,7 @@
 						</li>
 					</ul>
 
-					<?php if ($this->session->permissions->view_form): ?>
+					<?php if ($this->session->userdata('permissions') && isset($this->session->userdata('permissions')->view_form) && $this->session->userdata('permissions')->view_form): ?>
 						<h6
 							class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
 							<span>Settings</span>
@@ -182,7 +182,7 @@
 					</h6>
 
 					<ul class="nav flex-column mb-2">
-						<?php if ($this->session->permissions->view_user): ?>
+						<?php if ($this->session->userdata('permissions') && isset($this->session->userdata('permissions')->view_user) && $this->session->userdata('permissions')->view_user): ?>
 							<li class="nav-item">
 								<a class="nav-link <?= $page_name == 'mobile-users' ? 'active' : '' ?>"
 									href="<?= base_url('mobile-users') ?>">
@@ -191,7 +191,7 @@
 								</a>
 							</li>
 						<?php endif; ?>
-						<?php if ($this->session->permissions->view_admins): ?>
+						<?php if ($this->session->userdata('permissions') && isset($this->session->userdata('permissions')->view_admins) && $this->session->userdata('permissions')->view_admins): ?>
 							<li class="nav-item">
 								<a class="nav-link <?= $page_name == 'dashboard-users' ? 'active' : '' ?>"
 									href="<?= base_url('dashboard-users') ?>">
@@ -914,7 +914,7 @@
 					"serverSide": true,
 					"processing": true,
 					"ajax": {
-						"url": "https://dev.impact-outsourcing.com/aws.api/public/entry/getRegionalEntries", // Update this URL as needed
+					"url": "https://dev.impact-outsourcing.com/aws.api/public/entry/getRegionalEntries", // Update this URL as needed
 						"data": function (d) {
 							// Include necessary parameters (region_id, year, form_id)
 							d.dates = $('input[name="dates"]').val();

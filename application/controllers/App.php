@@ -566,13 +566,12 @@ class App extends CI_Controller
 		if (!$this->session->has_userdata('logged_in')) {
 			redirect();
 		}
-		//$url = 'http://157.245.19.48/aws.api/public/users?format=json';
+		// Use local API and guard against missing data to avoid stdClass::$data errors
 		$url = API_BASE_URLS . 'get-users?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
-		$data['users'] = $result->data;
+		$data['users'] = isset($result->data) && is_array($result->data) ? $result->data : [];
 		$data['page'] = 'pages/mobile-users';
 		$data['page_name'] = 'mobile-users';
-		// $this->custom->print($data); die();
 		$this->load->view('base', $data);
 	}
 
@@ -582,13 +581,12 @@ class App extends CI_Controller
 		if (!$this->session->has_userdata('logged_in')) {
 			redirect();
 		}
-		$url = 'http://157.245.19.48/aws.api/public/users?user_id=' . $user_id . '&format=json';
-		//$url = API_BASE_URLS.'get-user?user_id='.$user_id.'&format=json';
+		// Use local API and guard against missing data
+		$url = API_BASE_URLS . 'get-user?user_id=' . $user_id . '&format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
-		$data['user'] = $result->data;
+		$data['user'] = isset($result->data) ? $result->data : null;
 		$data['page'] = 'pages/mobile-user';
 		$data['page_name'] = 'mobile-user';
-		// $this->custom->print($data); die();
 		$this->load->view('base', $data);
 	}
 

@@ -45,7 +45,7 @@
 								<a class="nav-link py-0" data-toggle="View" title="View" href="<?= base_url('entry/'.$entry->response_id) ?>"><i data-feather="eye"></i></a>
 
 								<!-- <a class="nav-link py-0" data-toggle="Edit" title="Edit" href="<?= base_url('entry/'.$entry->response_id.'/edit') ?>"><i data-feather="edit-2"></i></a> -->
-								<?php if ($this->session->permissions->delete_response): ?>
+								<?php if ($this->session->userdata('permissions') && isset($this->session->userdata('permissions')->delete_response) && $this->session->userdata('permissions')->delete_response): ?>
 								<a class="nav-link py-0 confirm-tr-delete" data-toggle="Delete" title="Delete" href="<?= base_url('entry/'.$entry->response_id.'/delete') ?>"><i data-feather="trash"></i></a>
 								<?php endif; ?>
 							</nav>

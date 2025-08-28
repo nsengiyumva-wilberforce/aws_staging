@@ -10,17 +10,56 @@ class Form extends CI_Controller {
 
 	public function add_mobile_user()
 	{
+		// Debug: Log that method was called
+		file_put_contents('debug_form.log', date('Y-m-d H:i:s') . " - add_mobile_user method called\n", FILE_APPEND);
+		file_put_contents('debug_form.log', "POST data: " . print_r($_POST, true) . "\n", FILE_APPEND);
+		file_put_contents('debug_form.log', "Session logged_in: " . ($this->session->has_userdata('logged_in') ? 'YES' : 'NO') . "\n", FILE_APPEND);
+		
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) { 
+			file_put_contents('debug_form.log', "Redirecting due to no session\n", FILE_APPEND);
+			redirect(); 
+		}
 
 		$params = $this->input->post(NULL, TRUE);
 		$params['role_id'] = 1;
-		$params['active'] = $params['active'] == 1 ? 1 : 0;
-                $url = 'http://157.245.19.48/aws.api/public/user/add';
-		//$url = 'http://127.0.0.1/aws/api/public/user/add';
-		$result = json_decode($this->custom->run_curl_post($url, $params));
-		redirect('mobile-user/'.$result->data->user_id);
-		// $this->custom->print($params); die();
+		$params['active'] = isset($params['active']) && $params['active'] == 1 ? 1 : 0;
+		
+		// Fix: Set region_id properly instead of relying on API default
+		if (!isset($params['region_id']) || empty($params['region_id'])) {
+			$params['region_id'] = 1; // Default to region 1
+		}
+		
+		// Use API endpoint with constant to work across environments
+		$url = API_BASE_URL.'user/add';
+		$result_raw = $this->custom->run_curl_post($url, $params);
+		$result = json_decode($result_raw);
+		
+		// Debug logging for troubleshooting
+		file_put_contents('debug_form.log', "API URL: $url\n", FILE_APPEND);
+		file_put_contents('debug_form.log', "API Response: $result_raw\n", FILE_APPEND);
+		
+		// Check if the API call was successful
+		if ($result && isset($result->status) && ($result->status == 200 || $result->status == 201)) {
+			// Success - redirect to the new user's page
+			if (isset($result->data->user_id)) {
+				$this->session->set_flashdata('success_msg', 'Mobile user created successfully');
+				redirect('mobile-user/'.$result->data->user_id);
+			} else {
+				$this->session->set_flashdata('success_msg', 'Mobile user created successfully');
+				redirect('mobile-users');
+			}
+		} else {
+			// Error - redirect back with error message
+			$error_message = 'Failed to create mobile user';
+			if ($result && isset($result->message)) {
+				$error_message = $result->message;
+			} elseif ($result && isset($result->messages) && is_array($result->messages)) {
+				$error_message = implode(', ', $result->messages);
+			}
+			$this->session->set_flashdata('err_msg', $error_message);
+			redirect('mobile-user/add');
+		}
 	}
 
 
@@ -35,7 +74,7 @@ class Form extends CI_Controller {
 		$params['active'] = (isset($params['active']) && ($params['active'] == 1)) ? 1 : 0;
 		if ($params['password'] == '') unset($params['password']);
 		// $this->custom->print($params); die();
-                $url = 'http://157.245.19.48/aws.api/public/user/edit';
+		$url = API_BASE_URL.'user/edit';
 		//$url = API_BASE_URL.'user/edit';
 		$result = $this->custom->run_curl_post($url, $params);
 		// $this->custom->print($result); die();

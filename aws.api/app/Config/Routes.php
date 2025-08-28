@@ -1,6 +1,7 @@
 <?php
 
 namespace Config;
+use CodeIgniter\Router\RouteCollection;
 
 // Create a new instance of our RouteCollection class.
 $routes = Services::routes();
@@ -22,7 +23,7 @@ $routes->setDefaultController('Home');
 $routes->setDefaultMethod('index');
 $routes->setTranslateURIDashes(false);
 $routes->set404Override();
-$routes->setAutoRoute(true);
+$routes->setAutoRoute(false);
 
 /*
  * --------------------------------------------------------------------
@@ -79,7 +80,7 @@ $routes->group('library-question', function($routes){
 
 $routes->get('entries', 'Entry::index');
 $routes->group('entry', function($routes){
-	$routes->add('form_entry_geodata', 'Entry:form_entry_geodata');
+	$routes->add('form_entry_geodata', 'Entry::form_entry_geodata');
 	$routes->add('add', 'Entry::create');
 	$routes->add('add-followup', 'Entry::create_entry_followup');
 	$routes->add('add-photo', 'Entry::create_last_entry_photo');
@@ -205,5 +206,26 @@ $routes->get('user-region-areas', 'Util::user_region_areas');
 $routes->get('downloadable-region-entries', 'Entry::downloadable_region_entries');
 $routes->post('add-library-question', 'Question::add_question_from_the_library');
 
-
-
+// Legacy API routes for frontend compatibility
+$routes->get('get-regions', 'Region::index');
+$routes->get('get-users', 'User::index');
+$routes->get('get-user', 'User::index');
+$routes->post('add-user', 'User::create');
+$routes->post('delete-user/(:num)', 'User::delete/$1');
+$routes->get('get-forms-basic', 'Form::index');
+$routes->get('get-form', 'Form::index');
+$routes->get('get-admin-user', 'Admin_user::index');
+$routes->get('get-roles', 'Util::admin_roles');
+$routes->get('get-projects', 'App_project::index');
+$routes->get('get-districts', 'App_district::index');
+$routes->get('get-organisation', 'App_organisation::index');
+$routes->get('get-organisations', 'App_organisation::index');
+$routes->get('get-sub-counties', 'App_sub_county::index');
+$routes->get('get-parishes', 'App_parish::index');
+$routes->get('get-villages', 'App_village::index');
+$routes->get('get-project', 'App_project::index');
+$routes->get('get-region', 'Region::index');
+$routes->get('get-district', 'App_district::index');
+$routes->get('get-sub-county', 'App_sub_county::index');
+$routes->get('get-parish', 'App_parish::index');
+$routes->get('get-village', 'App_village::index');

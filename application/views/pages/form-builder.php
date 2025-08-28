@@ -42,6 +42,8 @@
 			<div class="modal-body">
 
 				<form id="form-update-form" action="<?= base_url('form/update-form/'.$form->form_id) ?>" method="POST">
+					<?= $this->security->get_csrf_token_name(); ?>
+					<input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
 					<div class="form-group">
 						<label>Form Title</label>
 						<input type="text" class="form-control" name="title" placeholder="Untitled Form" value="<?= $form->title ?>">

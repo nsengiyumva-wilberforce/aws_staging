@@ -50,6 +50,21 @@ class Admin_user extends BaseController
 	public function create()
 	{
 		$params = $this->request->getPost();
+		
+		// Input validation
+		$rules = [
+			'first_name' => 'required|min_length[2]|max_length[50]',
+			'last_name'  => 'required|min_length[2]|max_length[50]',
+			'email'      => 'required|valid_email|is_unique[admin_user.email]',
+			'password'   => 'required|min_length[6]',
+			'role_id'    => 'required|integer',
+			'region_id'  => 'required|integer'
+		];
+		
+		if (! $this->validate($rules)) {
+			return $this->fail($this->validator->getErrors(), 400);
+		}
+		
 		$model = new AdminUserModel();
 
 		$user_id = $model->insert($params);
@@ -133,12 +148,13 @@ class Admin_user extends BaseController
 
 		$user = $model->where('email', $params['username'])->get()->getRow();
 		if ($user) {
-			if ($user->password == $params['password']) {
+			if (password_verify($params['password'], $user->password)) {
+				unset($user->password); // Don't return password in response
 				$response = [
 					'status'   => 200,
 					'error'    => null,
 					'messages' => [
-						'success' => 'Password Updated'
+						'success' => 'Authentication successful'
 					],
 					'data' => $user
 				];
@@ -161,13 +177,14 @@ class Admin_user extends BaseController
 		$params = $this->request->getPost();
 		$model = new AdminUserModel();
 
-		if ($params['new_password'] == $params['confirm_password']) {
+	if ($params['new_password'] == $params['confirm_password']) {
 			$user = $model->getWhere(['user_id' => $params['user_id']])->getRow();
-			if ($params['old_password'] == $user->password) {
+			if (password_verify($params['old_password'], $user->password)) {
 
 				$user_data['password'] = $params['new_password'];
 				if($model->update($params['user_id'], $user_data)){
 					$data = $model->getWhere(['user_id' => $params['user_id']])->getRow();
+					unset($data->password); // Don't return password in response
 					$response = [
 						'status'   => 200,
 						'error'    => null,

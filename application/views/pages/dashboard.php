@@ -5,7 +5,7 @@
 				<button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
 				<button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
 			</div> -->
-		<?php if ($this->session->permissions->create_form): ?>
+		<?php if ($this->session->userdata('permissions') && isset($this->session->userdata('permissions')->create_form) && $this->session->userdata('permissions')->create_form): ?>
 			<a href="<?= base_url('add-chart') ?>" class="btn btn-sm btn-outline-secondary">
 				<i data-feather="plus"></i>
 				Add Chart
@@ -28,28 +28,28 @@
 	<div class="col">
 		<a href="<?= base_url('forms') ?>" class="counter d-block">
 			<i class="fas fa-file-alt fa-2x"></i>
-			<h2 class="timer count-title count-number" data-to="<?= $counter->forms ?>" data-speed="1500"></h2>
+			<h2 class="timer count-title count-number" data-to="<?= $counter ? $counter->forms : 0 ?>" data-speed="1500"></h2>
 			<p class="count-text ">Forms</p>
 		</a>
 	</div>
 	<div class="col">
 		<a href="<?= base_url('entries') ?>" class="counter d-block">
 			<i class="fa fa-inbox fa-2x"></i>
-			<h2 class="timer count-title count-number" data-to="<?= $counter->entries ?>" data-speed="1500"></h2>
+			<h2 class="timer count-title count-number" data-to="<?= $counter ? $counter->entries : 0 ?>" data-speed="1500"></h2>
 			<p class="count-text ">Entries</p>
 		</a>
 	</div>
 	<div class="col">
 		<a href="<?= base_url('mobile-users') ?>" class="counter d-block">
 			<i class="fa fa-users fa-2x"></i>
-			<h2 class="timer count-title count-number" data-to="<?= $counter->mobile_users ?>" data-speed="1500"></h2>
+			<h2 class="timer count-title count-number" data-to="<?= $counter ? $counter->mobile_users : 0 ?>" data-speed="1500"></h2>
 			<p class="count-text ">Mobile Users</p>
 		</a>
 	</div>
 	<div class="col">
 		<a href="<?= base_url('projects') ?>" class="counter d-block">
 			<i class="fas fa-project-diagram fa-2x"></i>
-			<h2 class="timer count-title count-number" data-to="<?= $counter->projects ?>" data-speed="1500"></h2>
+			<h2 class="timer count-title count-number" data-to="<?= $counter ? $counter->projects : 0 ?>" data-speed="1500"></h2>
 			<p class="count-text ">Projects</p>
 		</a>
 	</div>
@@ -67,7 +67,7 @@
 				<?= number_format($chart->actual) . ' ' . $chart->unit ?>
 			</p>
 			<div>
-				<?php if ($this->session->permissions->create_form): ?>
+				<?php if ($this->session->userdata('permissions') && isset($this->session->userdata('permissions')->create_form) && $this->session->userdata('permissions')->create_form): ?>
 					<nav class="nav d-inline-flex">
 						<a class="nav-link py-0" data-toggle="Edit" title="Edit"
 							href="<?= base_url('chart/' . $chart->chart_id . '/edit') ?>"><i data-feather="edit-2"></i></a>
@@ -80,17 +80,16 @@
 	<?php endforeach; ?>
 </div>
 
-<?php if ($this->session->permissions->create_form): ?>
+<?php if ($this->session->userdata('permissions') && isset($this->session->userdata('permissions')->create_form) && $this->session->userdata('permissions')->create_form): ?>
 	<div class="row mt-3 mb-5">
 		<div class="col">
 			<div class="meter-widget mb-2">
 				Root Storage
 				<div class="meter-wrapper">
-					<div class="meter" style="width: <?= $storage['_dev_vda1']['Use%'] ?>;"></div>
+					<div class="meter" style="width: <?= isset($storage['_dev_vda1']) ? $storage['_dev_vda1']['Use%'] : '0%' ?>;"></div>
 				</div>
 				<small>
-					<?= $storage['_dev_vda1']['Used'] ?>B of
-					<?= $storage['_dev_vda1']['Size'] ?>B used
+					<?= isset($storage['_dev_vda1']) ? $storage['_dev_vda1']['Used'] . 'B of ' . $storage['_dev_vda1']['Size'] . 'B used' : 'Storage info unavailable' ?>
 				</small>
 			</div>
 		</div>
@@ -98,11 +97,10 @@
 			<div class="meter-widget">
 				Uploads Storage
 				<div class="meter-wrapper">
-					<div class="meter" style="width: <?= $storage['udev']['Use%'] ?>;"></div>
+					<div class="meter" style="width: <?= isset($storage['udev']) ? $storage['udev']['Use%'] : '0%' ?>;"></div>
 				</div>
 				<small>
-					<?= $storage['udev']['Used'] ?>B of
-					<?= $storage['udev']['Size'] ?>B used
+					<?= isset($storage['udev']) ? $storage['udev']['Used'] . 'B of ' . $storage['udev']['Size'] . 'B used' : 'Storage info unavailable' ?>
 				</small>
 			</div>
 		</div>

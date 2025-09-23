@@ -91,6 +91,8 @@ $routes->group('entry', function($routes){
 	$routes->add('update-rejected-entry', 'Entry::update_rejected_entry');
 	$routes->add('update-rejected-entry-photo', 'Entry::rejected_photo_update');
 	$routes->add('delete', 'Entry::delete');
+	$routes->add('committed_baseline_entries', 'Entry::committed_baseline_entries');
+	$routes->add('downloadable_region_entries', 'Entry::downloadable_region_entries');
 	$routes->add('/', 'Entry::getEntry');
 });
 
@@ -204,6 +206,7 @@ $routes->get('app-tables', 'Util::app_tables');
 $routes->get('overview-counter', 'Util::overview_counter');
 $routes->get('user-region-areas', 'Util::user_region_areas');
 $routes->get('downloadable-region-entries', 'Entry::downloadable_region_entries');
+$routes->get('committed-baseline-entries', 'Entry::committed_baseline_entries');
 $routes->post('add-library-question', 'Question::add_question_from_the_library');
 
 // Legacy API routes for frontend compatibility

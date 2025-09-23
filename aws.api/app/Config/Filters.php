@@ -29,15 +29,16 @@ class Filters extends BaseConfig
 	 * @var array
 	 */
 	public $globals = [
-		'before' => [
-			// 'honeypot',
-			'csrf',
-			'cors',
-		],
-		'after'  => [
-			'toolbar',
-			// 'honeypot',
-		],
+	'before' => [
+		// 'honeypot',
+		// 'csrf', // Disabled for API
+		'cors',
+	],
+	'after'  => [
+		'toolbar',
+		'cors',
+		// 'honeypot',
+	],
 	];
 
 	/**

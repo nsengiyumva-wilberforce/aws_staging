@@ -499,6 +499,122 @@ class Entry extends BaseController
 		}
 	}
 
+	public function committed_baseline_entries()
+	{
+		ini_set('memory_limit', '512M');
+		try {
+			$utility = new Utility();
+			$params = $this->request->getGet();
+
+			$client = new MongoDB();
+			$collection = $client->staging->entries;
+
+			$query = [];
+
+			if (isset($params['region_id'])) {
+				$district_list = $utility->region_district_array($params['region_id']);
+				$query['responses.qn4'] = ['$in' => $district_list];
+			}
+
+			if (isset($params['form_id'])) {
+				$query['form_id'] = $params['form_id'];
+			}
+
+			// Filter only baseline entries
+			$query['responses.entity_type'] = 'baseline';
+
+			$pipeline = [
+				['$match' => $query],
+				['$project' => [
+					'_id' => 0,
+					'response_id' => 1,
+					'form_id' => 1,
+					'created_at' => 1,
+					'updated_at' => 1,
+					'responses' => [
+						'$filter' => [
+							'input' => '$responses',
+							'as' => 'response',
+							'cond' => ['$eq' => ['$$response.entity_type', 'baseline']]
+						]
+					]
+				]]
+			];
+
+			$data = $collection->aggregate($pipeline)->toArray();
+
+			// Get form title ids
+			$form_titles = $utility->form_titles($params['form_id']);
+
+			// Cleaning values to only return needed data
+			$new_data = [];
+
+			foreach ($data as $entry) {
+				// Skip entries with no baseline responses
+				if (empty($entry['responses'])) {
+					continue;
+				}
+
+				$baseline_response = $entry['responses'][0];
+
+				$title_str = '';
+				foreach ($form_titles['title'] as $item) {
+					if (isset($baseline_response['qn' . $item])) {
+						if (gettype($baseline_response['qn' . $item]) == 'array') {
+							$title_str .= $baseline_response['qn' . $item][0];
+						} else {
+							$title_str .= $baseline_response['qn' . $item];
+						}
+					}
+				}
+				$entry['title'] = $title_str != '' ? $title_str : 'Unknown Title';
+
+				$sub_title_str = '';
+				foreach ($form_titles['sub_title'] as $item) {
+					if (isset($baseline_response['qn' . $item])) {
+						if (gettype($baseline_response['qn' . $item]) == 'array') {
+							$sub_title_str .= $baseline_response['qn' . $item][0];
+						} else {
+							$sub_title_str .= $baseline_response['qn' . $item];
+						}
+					}
+				}
+				$entry['sub_title'] = $sub_title_str != '' ? $sub_title_str : 'Unknown Sub Title';
+
+				if (isset($baseline_response['qn4'])) {
+					$entry['district'] = $baseline_response['qn4'];
+				}
+				if (isset($baseline_response['qn7'])) {
+					$entry['sub_county'] = $baseline_response['qn7'];
+				}
+				if (isset($baseline_response['qn8'])) {
+					$entry['parish'] = $baseline_response['qn8'];
+				}
+				if (isset($baseline_response['qn9'])) {
+					$entry['village'] = $baseline_response['qn9'];
+				}
+
+				$user_map = $utility->mobile_user_mapper();
+				$entry['creator_id'] = $user_map[$baseline_response['creator_id'] ?? "72"];
+
+				$new_data[] = $entry;
+			}
+		} catch (Exception $e) {
+			$response = [
+				'status' => 500,
+				'data' => [],
+				'message' => $e->getMessage()
+			];
+			return $this->respond($response);
+		}
+
+		$response = [
+			'status' => 200,
+			'data' => $new_data
+		];
+		return $this->respond($response);
+	}
+
 
 	public function getRegionalEntries()
 	{

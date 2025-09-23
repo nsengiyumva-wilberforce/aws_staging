@@ -163,20 +163,20 @@ $routes->group('village', function($routes){
 
 $routes->get('users', 'User::index');
 $routes->group('user', function($routes){
-	$routes->add('add', 'User::create');
-	$routes->add('edit', 'User::update');
-	$routes->add('delete', 'User::delete');
-	$routes->add('authenticate', 'User::authenticate');
-	$routes->add('change-password', 'User::change_password');
+	$routes->post('add', 'User::create');
+	$routes->post('edit', 'User::update');
+	$routes->post('delete', 'User::delete');
+	$routes->post('authenticate', 'User::authenticate');
+	$routes->post('change-password', 'User::change_password');
 });
 
 $routes->get('admin-users', 'Admin_user::index');
 $routes->group('admin-user', function($routes){
-	$routes->add('add', 'Admin_user::create');
-	$routes->add('edit', 'Admin_user::update');
-	$routes->add('delete', 'Admin_user::delete');
-	$routes->add('authenticate', 'Admin_user::authenticate');
-	$routes->add('change-password', 'Admin_user::change_password');
+	$routes->post('add', 'Admin_user::create');
+	$routes->post('edit', 'Admin_user::update');
+	$routes->post('delete', 'Admin_user::delete');
+	$routes->post('authenticate', 'Admin_user::authenticate');
+	$routes->post('change-password', 'Admin_user::change_password');
 });
 
 
@@ -232,3 +232,6 @@ $routes->get('get-district', 'App_district::index');
 $routes->get('get-sub-county', 'App_sub_county::index');
 $routes->get('get-parish', 'App_parish::index');
 $routes->get('get-village', 'App_village::index');
+$routes->get('/', 'Home::index');
+$routes->get('/', 'Home::index');
+$routes->post("simple-auth", "Simple_auth::authenticate");

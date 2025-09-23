@@ -43,7 +43,10 @@ class Admin_user extends BaseController
 		}
 	}
 
+
+
 	// create
+
 	public function create()
 	{
 		$params = $this->request->getPost();
@@ -81,7 +84,10 @@ class Admin_user extends BaseController
 		}
 	}
 
+
+
 	// update
+
 	public function update()
 	{
 		$params = $this->request->getPost();
@@ -106,7 +112,10 @@ class Admin_user extends BaseController
 		}
 	}
 
+
+
 	// delete
+
 	public function delete()
 	{
 		$params = $this->request->getPost();
@@ -130,45 +139,40 @@ class Admin_user extends BaseController
 		}
 	}
 
+
+
 	public function authenticate()
-	{
-		// Handle JSON input for API requests
-		$contentType = $this->request->getHeaderLine('Content-Type');
-		if (strpos($contentType, 'application/json') !== false) {
-			$params = $this->request->getJSON(true);
-		} else {
-			$params = $this->request->getPost();
-		}
-		$model = $this->db->table('admin_user_view');
+    {
+        $params = $this->request->getPost();
+        $model = $this->db->table('admin_user_view');
 
-		$user = $model->where('email', $params['username'])->get()->getRow();
-		if ($user) {
-			// Check if password is hashed or plain text
-			if (password_verify($params['password'], $user->password) || $params['password'] === $user->password) {
-				unset($user->password); // Don't return password in response
-				$response = [
-					'status'   => 200,
-					'error'    => null,
-					'messages' => [
-						'success' => 'Authentication successful'
-					],
-					'data' => $user
-				];
-				return $this->respond($response);
-			} else {
-				return $this->failNotFound('Wrong username and password combination');
-			}
-		} else {
-			return $this->failNotFound('Account does not exist');
-		}
-	}
+        $user = $model->where('email', $params['username'])->get()->getRow();
+        if ($user) {
+            if ($params['password'] === $user->password) {
+                unset($user->password); // Don't return password in response
+                $response = [
+                    'status'   => 200,
+                    'error'    => null,
+                    'messages' => [
+                        'success' => 'Authentication successful'
+                    ],
+                    'data' => $user
+                ];
+                return $this->respond($response);
+            } else {
+                return $this->failNotFound('Wrong username and password combination');
+            }
+        } else {
+            return $this->failNotFound('Account does not exist');
+        }
+    }
 
-	public function change_password()
+public function change_password()
 	{
 		$params = $this->request->getPost();
 		$model = new AdminUserModel();
 
-		if ($params['new_password'] == $params['confirm_password']) {
+	if ($params['new_password'] == $params['confirm_password']) {
 			$user = $model->getWhere(['user_id' => $params['user_id']])->getRow();
 			if (password_verify($params['old_password'], $user->password)) {
 
@@ -198,5 +202,7 @@ class Admin_user extends BaseController
 			return $this->fail('Passwords dont match');
 		}
 	}
+
+
 
 }

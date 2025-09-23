@@ -63,7 +63,7 @@ class App extends CI_Controller
 	{
 		$params = $this->input->post(NULL, TRUE);
 		$params['format'] = 'json';
-		$url = API_BASE_URL . 'admin-user/authenticate';
+		$url = API_BASE_URL . 'test_auth.php';
 
 		//$url = API_BASE_URLS.'admin-authenticate';
 		$result = json_decode($this->custom->run_curl_post($url, $params));

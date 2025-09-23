@@ -26,7 +26,7 @@
 						<h1 class="h3 mb-3 font-weight-normal">Dashboard Sign In</h1>
 						<div class="form-group">
 						<label for="input3">Email Address</label>
-							<input type="email" class="form-control" id="input3" name="username" required="required">
+							<input type="email" class="form-control" id="input3" name="email" required="required">
 						</div>
 						<div class="form-group">
 							<label for="input6">Password</label>

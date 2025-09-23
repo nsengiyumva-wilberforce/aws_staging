@@ -15,6 +15,47 @@ class Entry extends BaseController
 
 	use ResponseTrait;
 
+	/**
+	 * Determine entity type based on form characteristics
+	 * @param int $form_id
+	 * @param string $title
+	 * @return string
+	 */
+	private function determineEntityType($form_id, $title = '')
+	{
+		// Forms that should be classified as monitoring data
+		$monitoring_forms = ['FP2', 'fp2'];
+		$monitoring_form_ids = []; // Add specific form IDs if known
+
+		// Check by title first
+		foreach ($monitoring_forms as $monitoring_form) {
+			if (stripos($title, $monitoring_form) !== false) {
+				return 'monitoring';
+			}
+		}
+
+		// Check by form ID
+		if (in_array($form_id, $monitoring_form_ids)) {
+			return 'monitoring';
+		}
+
+		// Check form title from database
+		$db = \Config\Database::connect();
+		$builder = $db->table('form');
+		$form = $builder->where('form_id', $form_id)->get()->getRow();
+
+		if ($form && isset($form->title)) {
+			foreach ($monitoring_forms as $monitoring_form) {
+				if (stripos($form->title, $monitoring_form) !== false) {
+					return 'monitoring';
+				}
+			}
+		}
+
+		// Default to baseline for backward compatibility
+		return 'baseline';
+	}
+
 
 
 
@@ -781,7 +822,7 @@ class Entry extends BaseController
 				[
 					'$match' => [
 						'form_id' => $params['form_id'],
-						'responses.entity_type' => 'baseline',
+						'responses.entity_type' => $params['data_type'] ?? 'baseline',
 						'$and' => [
 							['responses.created_at' => ['$gt' => $startdate]],
 							['responses.created_at' => ['$lt' => $enddate]]
@@ -1681,7 +1722,7 @@ class Entry extends BaseController
 				$data = [];
 				$baseline_entry = json_decode($entry->json_response);
 				$baseline_entry->creator_id = $entry->creator_id;
-				$baseline_entry->entity_type = 'baseline';
+				$baseline_entry->entity_type = $this->determineEntityType($entry->form_id, $entry->title);
 				$baseline_entry->created_at = $entry->date_created;
 				$data[] = $baseline_entry;
 

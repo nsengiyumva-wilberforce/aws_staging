@@ -14,7 +14,12 @@
 			<?php foreach ($forms as $form): ?>
 			<tr>
 				<td><i data-feather="file-text"></i> <?= $form->title ?></td>
-				<td><a href="<?= base_url('report/form/'.$form->form_id.'/data/baseline') ?>">Baseline</a> | <?php if ($form->is_followup == 1): ?><a href="<?= base_url('report/form/'.$form->form_id.'/data/followup') ?>">Followup</a> |<?php endif; ?> <a href="<?= base_url('report/form/'.$form->form_id.'/data/aggregated') ?>">Aggregated</a></td>
+				<td>
+					<a href="<?= base_url('report/form/'.$form->form_id.'/data/baseline') ?>">Baseline</a> |
+					<a href="<?= base_url('report/form/'.$form->form_id.'/data/monitoring') ?>">Monitoring</a> |
+					<?php if ($form->is_followup == 1): ?><a href="<?= base_url('report/form/'.$form->form_id.'/data/followup') ?>">Followup</a> |<?php endif; ?>
+					<a href="<?= base_url('report/form/'.$form->form_id.'/data/aggregated') ?>">Aggregated</a>
+				</td>
 			</tr>
 			<?php endforeach; ?>
 		</tbody>

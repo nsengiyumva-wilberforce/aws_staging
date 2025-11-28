@@ -78,8 +78,81 @@ class Utility
         $compilation = [];
         foreach ($question_list as $question) {
             $compilation['qn'.$question->question_id] = $question->question;
+            // Store question metadata for value resolution
+            $compilation['qn'.$question->question_id.'_meta'] = [
+                'answer_type_id' => $question->answer_type_id ?? null,
+                'answer_values' => $question->answer_values ?? null
+            ];
         }
         return $compilation;
+    }
+
+    public function resolve_answer_value($question_key, $response_value, $question_meta)
+    {
+        // If no metadata or value is null/empty, return original value
+        if (!$question_meta || empty($response_value)) {
+            return $response_value;
+        }
+
+        $answer_values = $question_meta['answer_values'] ?? null;
+
+        // If no answer_values, return original value
+        if (!$answer_values) {
+            return $response_value;
+        }
+
+        // Handle database table lookups
+        if (isset($answer_values->db_table)) {
+            $db = \Config\Database::connect();
+
+            try {
+                switch ($answer_values->db_table) {
+                    case 'app_project':
+                        $result = $db->table('app_project')->where('project_id', $response_value)->get()->getRow();
+                        return $result ? $result->name : $response_value;
+
+                    case 'app_village':
+                        $result = $db->table('app_village')->where('village_id', $response_value)->get()->getRow();
+                        return $result ? $result->name : $response_value;
+
+                    case 'app_district':
+                        $result = $db->table('app_district')->where('district_id', $response_value)->get()->getRow();
+                        return $result ? $result->name : $response_value;
+
+                    case 'app_parish':
+                        $result = $db->table('app_parish')->where('parish_id', $response_value)->get()->getRow();
+                        return $result ? $result->name : $response_value;
+
+                    case 'app_sub_county':
+                        $result = $db->table('app_sub_county')->where('sub_county_id', $response_value)->get()->getRow();
+                        return $result ? $result->name : $response_value;
+
+                    default:
+                        // For other db_table values, try a generic approach
+                        $table_name = $answer_values->db_table;
+                        $id_field = str_replace('app_', '', $table_name) . '_id';
+                        $result = $db->table($table_name)->where($id_field, $response_value)->get()->getRow();
+                        return $result ? ($result->name ?? $result->title ?? $response_value) : $response_value;
+                }
+            } catch (\Exception $e) {
+                // If database lookup fails, return original value
+                return $response_value;
+            }
+        }
+
+        // For static answer values, check if it's an array with mappings
+        if (is_array($answer_values)) {
+            // Check if response_value is a valid array key type (string or integer)
+            if (is_string($response_value) || is_int($response_value)) {
+                // If response_value exists as a key in the array, return the mapped value
+                return $answer_values[$response_value] ?? $response_value;
+            }
+            // If response_value is an array or object, return it as-is
+            return $response_value;
+        }
+
+        // Return original value if no mapping found
+        return $response_value;
     }
 
 

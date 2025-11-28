@@ -99,7 +99,10 @@ class Util extends BaseController
 	public function overview_counter()
 	{
 		// Use MySQL instead of MongoDB for all counts
-		$data['entries'] = $this->db->query('SELECT * FROM response')->getNumRows();
+		// Get entries count from MongoDB instead of MySQL
+		$client = new MongoDB();
+		$collection = $client->staging->entries;
+		$data['entries'] = $collection->countDocuments();
 		$data['forms'] = $this->db->query('SELECT * FROM question_form')->getNumRows();
 		$data['mobile_users'] = $this->db->query('SELECT * FROM user')->getNumRows();
 		$data['projects'] = $this->db->query('SELECT * FROM app_project')->getNumRows();

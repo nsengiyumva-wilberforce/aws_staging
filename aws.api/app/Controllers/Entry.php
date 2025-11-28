@@ -289,9 +289,15 @@ class Entry extends BaseController
 		for ($i = 0; $i < count($qn_ids); $i++) {
 			$questions[$i] = $model->where('question_id', $qn_ids[$i])->get()->getRow();
 		}
+		// Build question data with metadata for value resolution
+		$qn_data = [];
+		$qn_metadata = [];
 		foreach ($questions as $qn) {
 			$qn_data['qn' . $qn->question_id] = $qn->question;
-			$qn_data['qn' . $qn->question_id] = $qn->question;
+			$qn_metadata['qn' . $qn->question_id] = [
+				'answer_type_id' => $qn->answer_type_id ?? null,
+				'answer_values' => json_decode($qn->answer_values) ?? null
+			];
 		}
 		$number_of_responses = count($entry->responses);
 		$baseline = (array) $entry->responses[0];
@@ -299,17 +305,23 @@ class Entry extends BaseController
 		$followups = [];
 		foreach ($qn_data as $key => $value) {
 			if (isset($qn_data[$key]) && isset($baseline[$key])) {
-				$comp['baseline'][] = array('question' => $qn_data[$key], 'response' => $baseline[$key]);
+				// Resolve the baseline response value
+				$resolved_value = $utility->resolve_answer_value($key, $baseline[$key], $qn_metadata[$key]);
+				$comp['baseline'][] = array('question' => $qn_data[$key], 'response' => $resolved_value);
 			}
 			if (isset($qn_data[$key]) && isset($latest_followup[0][$key])) {
-				$comp['followup'][0][] = array('question' => $qn_data[$key], 'response' => $latest_followup[0][$key]);
+				// Resolve the followup response value
+				$resolved_value = $utility->resolve_answer_value($key, $latest_followup[0][$key], $qn_metadata[$key]);
+				$comp['followup'][0][] = array('question' => $qn_data[$key], 'response' => $resolved_value);
 				$photo_mobile_path = explode('/', $latest_followup[0]['photo']);
 				$filename = end($photo_mobile_path);
 				$comp['followup'][0]['photo'] = $filename;
 				$comp['has_an_array'] = 1;
 			}
 			if (isset($qn_data[$key]) && isset($latest_followup[$key])) {
-				$comp['followup'][] = array('question' => $qn_data[$key], 'response' => $latest_followup[$key]);
+				// Resolve the followup response value
+				$resolved_value = $utility->resolve_answer_value($key, $latest_followup[$key], $qn_metadata[$key]);
+				$comp['followup'][] = array('question' => $qn_data[$key], 'response' => $resolved_value);
 				$photo_mobile_path = explode('/', $latest_followup['photo'] ?? null);
 				$filename = end($photo_mobile_path);
 				$comp['followup']['photo'] = $filename;
@@ -329,13 +341,17 @@ class Entry extends BaseController
 			$followup = (array) $entry->responses[$i];
 			foreach ($qn_data as $key => $value) {
 				if (isset($qn_data[$key]) && isset($followup[0][$key])) {
-					$comp['followups'][$i][] = array('question' => $qn_data[$key], 'response' => $followup[0][$key]);
+					// Resolve the followup response value
+					$resolved_value = $utility->resolve_answer_value($key, $followup[0][$key], $qn_metadata[$key]);
+					$comp['followups'][$i][] = array('question' => $qn_data[$key], 'response' => $resolved_value);
 					$photo_mobile_path = explode('/', $followup[0]['photo']);
 					$filename = end($photo_mobile_path);
 					$comp['followups'][$i]['photo'] = $filename;
 				}
 				if (isset($qn_data[$key]) && isset($followup[$key])) {
-					$comp['followups'][$i][] = array('question' => $qn_data[$key], 'response' => $followup[$key]);
+					// Resolve the followup response value
+					$resolved_value = $utility->resolve_answer_value($key, $followup[$key], $qn_metadata[$key]);
+					$comp['followups'][$i][] = array('question' => $qn_data[$key], 'response' => $resolved_value);
 					$photo_mobile_path = explode('/', $followup['photo']);
 					$filename = end($photo_mobile_path);
 					$comp['followups'][$i]['photo'] = $filename;
@@ -977,43 +993,93 @@ class Entry extends BaseController
 			$user_map = $utility->mobile_user_mapper();
 			$compilation = $utility->question_mapper($entry->form_id);
 
-			$compiled_entry = [];
-			foreach ($entry->responses as $response) {
-				$compiled_response = [];
-				foreach ($response as $key => $value) {
-					if (isset($compilation[$key])) {
-						$compiled_response[] = array('question' => $compilation[$key], 'response' => $value);
-					}
-				}
+			// Create the comp structure that the view expects
+			$number_of_responses = count($entry->responses);
+			$baseline = (array) $entry->responses[0];
+			$comp = [];
 
-				$clean['compilation'] = $compiled_response;
-				if (isset($response['photo_file']))
-					$clean['photo_file'] = $response['photo_file'];
-				if (isset($response['coordinates']))
-					$clean['coordinates'] = $response['coordinates'];
-				if (isset($response['creator_id']))
-					$clean['creator_id'] = $response['creator_id'];
-				if (isset($response['creator_id']))
-					$clean['creator'] = $user_map[$response['creator_id']];
-				if (isset($response['entity_type']))
-					$clean['entity_type'] = $response['entity_type'];
-				if (isset($response['created_at']))
-					$clean['created_at'] = $response['created_at'];
-				$compiled_entry[] = $clean;
+			// Process baseline responses with value resolution
+			$comp['baseline'] = [];
+			foreach ($baseline as $key => $value) {
+				if (isset($compilation[$key])) {
+					// Resolve the response value using metadata
+					$meta_key = $key . '_meta';
+					$question_meta = $compilation[$meta_key] ?? null;
+					$resolved_value = $utility->resolve_answer_value($key, $value, $question_meta);
+					$comp['baseline'][] = array('question' => $compilation[$key], 'response' => $resolved_value);
+				}
 			}
 
-			$entry->responses = (object) $compiled_entry;
+			// Process followup responses if they exist
+			if ($number_of_responses > 1) {
+				$latest_followup = (array) $entry->responses[$number_of_responses - 1];
+				$comp['followup'] = [];
+				$comp['has_an_array'] = 0; // Default to 0
+
+				// Check if followup data is in an array format
+				if (isset($latest_followup[0]) && is_array($latest_followup[0])) {
+					$followup_data = $latest_followup[0];
+					$comp['has_an_array'] = 1;
+					$comp['followup'][0] = [];
+
+					foreach ($followup_data as $key => $value) {
+						if (isset($compilation[$key])) {
+							$meta_key = $key . '_meta';
+							$question_meta = $compilation[$meta_key] ?? null;
+							$resolved_value = $utility->resolve_answer_value($key, $value, $question_meta);
+							$comp['followup'][0][] = array('question' => $compilation[$key], 'response' => $resolved_value);
+						}
+					}
+
+					if (isset($followup_data['creator_id'])) {
+						$comp['followup'][0]['followup_creator'] = $user_map[$followup_data['creator_id']];
+					}
+					if (isset($followup_data['photo'])) {
+						$photo_mobile_path = explode('/', $followup_data['photo']);
+						$filename = end($photo_mobile_path);
+						$comp['followup'][0]['photo'] = $filename;
+					}
+				} else {
+					// Direct followup data format
+					foreach ($latest_followup as $key => $value) {
+						if (isset($compilation[$key])) {
+							$meta_key = $key . '_meta';
+							$question_meta = $compilation[$meta_key] ?? null;
+							$resolved_value = $utility->resolve_answer_value($key, $value, $question_meta);
+							$comp['followup'][] = array('question' => $compilation[$key], 'response' => $resolved_value);
+						}
+					}
+
+					if (isset($latest_followup['creator_id'])) {
+						$comp['followup']['followup_creator'] = $user_map[$latest_followup['creator_id']];
+					}
+					if (isset($latest_followup['photo'])) {
+						$photo_mobile_path = explode('/', $latest_followup['photo']);
+						$filename = end($photo_mobile_path);
+						$comp['followup']['photo'] = $filename;
+					}
+				}
+			}
+
+			// Handle baseline photo
+			if (isset($baseline['photo'])) {
+				$photo_mobile_path = explode('/', $baseline['photo']);
+				$filename = end($photo_mobile_path);
+				$comp['baseline']['photo'] = $filename;
+			}
+
+			// Assign the comp structure to entry
+			$entry->comp = (object) $comp;
+			$entry->followup_count = $number_of_responses - 1;
+			$entry->media_directory = base_url('writable/uploads/');
 
 			$data = [
 				'status' => 200,
 				'data' => $entry
 			];
-		}
-
-		if ($data) {
 			return $this->respond($data);
 		} else {
-			return $this->failNotFound('No Data Found with id ');
+			return $this->failNotFound('No Data Found with response_id ');
 		}
 	}
 

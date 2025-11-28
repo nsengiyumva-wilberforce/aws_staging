@@ -1,3 +1,10 @@
+<?php if (!isset($form) || $form === null): ?>
+	<div class="alert alert-danger">
+		<h4>Error: Form Not Found</h4>
+		<p>The form you are trying to edit does not exist or could not be loaded.</p>
+		<a href="<?= base_url('forms') ?>" class="btn btn-primary">Back to Forms</a>
+	</div>
+<?php else: ?>
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 	<h1 class="h2">Form Builder</h1>
 	<div class="btn-toolbar mb-2 mb-md-0">
@@ -85,4 +92,4 @@
 		</div>
 	</div>
 </div>
-
+<?php endif; ?>

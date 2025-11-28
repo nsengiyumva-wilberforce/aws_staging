@@ -39,6 +39,14 @@ class App extends CI_Controller
 		}
 		$url = API_BASE_URL . 'entry?response_id=' . $entry_id . '&format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
+
+		// Validate that the entry data exists
+		if (!isset($result->data) || $result->data === null) {
+			// Log the error or show a user-friendly error page
+			show_error('Entry not found or could not be loaded. Please check the entry ID and try again.', 404, 'Entry Not Found');
+			return;
+		}
+
 		$data['entry'] = $result->data;
 		$data['page'] = 'pages/entry';
 		$data['page_name'] = 'entry';
@@ -63,7 +71,7 @@ class App extends CI_Controller
 	{
 		$params = $this->input->post(NULL, TRUE);
 		$params['format'] = 'json';
-		$url = API_BASE_URL . 'test_auth.php';
+		$url = "http://localhost/test_auth.php";
 
 		//$url = API_BASE_URLS.'admin-authenticate';
 		$result = json_decode($this->custom->run_curl_post($url, $params));
@@ -145,7 +153,7 @@ class App extends CI_Controller
 		$result = json_decode($this->custom->run_curl_get($url));
 		$charts = $result->data ?? [];
 
-		$url = API_BASE_URLS . 'dasboard-overview-counter?format=json';
+		$url = API_BASE_URLS . 'overview-counter?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$counter = $result->data;
 
@@ -184,16 +192,19 @@ class App extends CI_Controller
 			redirect();
 		}
 
-		$url = API_BASE_URL . 'form?form_id=' . $form_id . '&format=json';
-		$result = $this->custom->run_curl_get($url);
+		// Use the same API endpoint as the view function (get-form works, form endpoint doesn't exist)
+		$url = API_BASE_URLS . 'get-form?form_id=' . $form_id . '&format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
+
+		// Check if form exists
+		if (!isset($result->data) || $result->data === null) {
+			$this->session->set_flashdata('error', 'Form not found. The form you are trying to edit does not exist.');
+			redirect('forms');
+			return;
+		}
+
 		$data['form'] = $result->data;
-
-		$url = API_BASE_URL . 'question?form_id=' . $form_id;
-		$result = json_decode($this->custom->run_curl_get($url));
-		$question_list = $result->data;
-
-		$data['question_list'] = $question_list;
+		$data['question_list'] = $result->data->question_list;
 		$data['page'] = 'pages/form-builder';
 		$data['page_name'] = 'forms';
 		$this->load->view('base', $data);
@@ -206,13 +217,62 @@ class App extends CI_Controller
 			redirect();
 		}
 
-		$url = API_BASE_URL . 'form?form_id=' . $form_id . '&settings=true&format=json';
+		// Use the same API endpoint as the view function
+		$url = API_BASE_URLS . 'get-form?form_id=' . $form_id . '&format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
-		$data['form'] = $result->data;
+
+		// Check if form exists
+		if (!isset($result->data) || $result->data === null) {
+			$this->session->set_flashdata('error', 'Form not found. The form you are trying to access does not exist.');
+			redirect('forms');
+			return;
+		}
+
+		$form = $result->data;
+
+		// Expand title_fields from IDs to question objects
+		if (isset($form->title_fields) && is_object($form->title_fields)) {
+			$title_ids = $form->title_fields->entry_title ?? [];
+			$subtitle_ids = $form->title_fields->entry_sub_title ?? [];
+
+			$form->title_fields = (object)[
+				'entry_title' => $this->expand_question_ids($title_ids, $form->question_list),
+				'entry_sub_title' => $this->expand_question_ids($subtitle_ids, $form->question_list)
+			];
+		} else {
+			$form->title_fields = (object)['entry_title' => [], 'entry_sub_title' => []];
+		}
+
+		// Expand followup_prefill from IDs to question objects
+		if (isset($form->followup_prefill) && is_array($form->followup_prefill)) {
+			$form->followup_prefill = $this->expand_question_ids($form->followup_prefill, $form->question_list);
+		} else {
+			$form->followup_prefill = [];
+		}
+
+		$data['form'] = $form;
 		$data['page'] = 'pages/form-settings';
 		$data['page_name'] = 'form-settings';
 		// $this->custom->print($data); die();
 		$this->load->view('base', $data);
+	}
+
+	private function expand_question_ids($question_ids, $question_list)
+	{
+		$expanded = [];
+		if (!is_array($question_ids) || empty($question_ids)) {
+			return $expanded;
+		}
+
+		foreach ($question_ids as $id) {
+			foreach ($question_list as $question) {
+				if ($question->question_id == $id) {
+					$expanded[] = $question;
+					break;
+				}
+			}
+		}
+		return $expanded;
 	}
 
 	public function form($form_id)

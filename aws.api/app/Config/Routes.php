@@ -194,6 +194,7 @@ $routes->add('compiled-entry', 'Entry::compiled_entry');
 $routes->add('report/entries', 'Entry::form_entries_report');
 $routes->add('report/user-data-submission', 'User::data_submission');
 $routes->add('aggregated-report/entries', 'Entry::form_entries_aggregated_report');
+$routes->add('entry/getRegionalEntries', 'Entry::getRegionalEntries');
 
 
 

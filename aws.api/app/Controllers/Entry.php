@@ -759,9 +759,24 @@ class Entry extends BaseController
 
 		// Process data
 		$form_titles = $utility->form_titles($params['form_id']);
+
+		// Fetch question metadata for location fields to resolve IDs to names
+		$db = \Config\Database::connect();
+		$question_metadata = [];
+		$location_question_ids = [4, 7, 8, 9]; // district, sub_county, parish, village
+		foreach ($location_question_ids as $qn_id) {
+			$question = $db->table('question')->where('question_id', $qn_id)->get()->getRow();
+			if ($question) {
+				$question_metadata['qn' . $qn_id] = [
+					'answer_type_id' => $question->answer_type_id ?? null,
+					'answer_values' => json_decode($question->answer_values) ?? null
+				];
+			}
+		}
+
 		$dataGenetration = [];  // Initialize the array
 
-		$new_data = array_map(function ($entry) use ($form_titles, $user_map, &$dataGenetration) {
+		$new_data = array_map(function ($entry) use ($form_titles, $user_map, &$dataGenetration, $utility, $question_metadata) {
 			$number_of_responses = count($entry['responses']);
 			$title_str = '';
 			foreach ($form_titles['title'] as $item) {
@@ -775,10 +790,16 @@ class Entry extends BaseController
 			}
 			$entry['sub_title'] = $sub_title_str;
 
-			$entry['district'] = $entry['responses'][0]['qn4'] ?? null;
-			$entry['sub_county'] = $entry['responses'][0]['qn7'] ?? null;
-			$entry['parish'] = $entry['responses'][0]['qn8'] ?? null;
-			$entry['village'] = $entry['responses'][0]['qn9'] ?? null;
+			// Resolve location IDs to names using the resolve_answer_value function
+			$district_id = $entry['responses'][0]['qn4'] ?? null;
+			$sub_county_id = $entry['responses'][0]['qn7'] ?? null;
+			$parish_id = $entry['responses'][0]['qn8'] ?? null;
+			$village_id = $entry['responses'][0]['qn9'] ?? null;
+
+			$entry['district'] = $district_id ? $utility->resolve_answer_value('qn4', $district_id, $question_metadata['qn4'] ?? null) : null;
+			$entry['sub_county'] = $sub_county_id ? $utility->resolve_answer_value('qn7', $sub_county_id, $question_metadata['qn7'] ?? null) : null;
+			$entry['parish'] = $parish_id ? $utility->resolve_answer_value('qn8', $parish_id, $question_metadata['qn8'] ?? null) : null;
+			$entry['village'] = $village_id ? $utility->resolve_answer_value('qn9', $village_id, $question_metadata['qn9'] ?? null) : null;
 
 			$entry['number_of_responses'] = $number_of_responses;
 			//get the last creator

@@ -17,6 +17,8 @@ class Custom {
 		curl_setopt_array($curl, array(
 			CURLOPT_RETURNTRANSFER => 1,
 			CURLOPT_URL => $url,
+			CURLOPT_SSL_VERIFYPEER => false,
+			CURLOPT_SSL_VERIFYHOST => false,
 		));
 		$resp = curl_exec($curl);
 		curl_close($curl);
@@ -31,7 +33,9 @@ class Custom {
 			CURLOPT_RETURNTRANSFER => 1,
 			CURLOPT_URL => $url,
 			CURLOPT_POST => 1,
-			CURLOPT_POSTFIELDS => $values
+			CURLOPT_POSTFIELDS => $values,
+			CURLOPT_SSL_VERIFYPEER => false,
+			CURLOPT_SSL_VERIFYHOST => false,
 		));
 		$resp = curl_exec($curl);
 		curl_close($curl);
@@ -48,7 +52,9 @@ class Custom {
 			CURLOPT_URL => $url,
 			CURLOPT_POST => 1,
 			CURLOPT_POSTFIELDS => $values,
-			CURLOPT_HTTPHEADER => array('apiKey: 4448e74020e2bff0689b86a4bbf76aedbb0a9946bce94e4e8e61148f843ef94c')
+			CURLOPT_HTTPHEADER => array('apiKey: 4448e74020e2bff0689b86a4bbf76aedbb0a9946bce94e4e8e61148f843ef94c'),
+			CURLOPT_SSL_VERIFYPEER => false,
+			CURLOPT_SSL_VERIFYHOST => false,
 		));
 		$resp = curl_exec($curl);
 		curl_close($curl);

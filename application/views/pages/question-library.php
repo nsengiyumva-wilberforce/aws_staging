@@ -1,6 +1,6 @@
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 	<h1 class="h2">Question Library</h1>
-	<?php if (count($question_list)): ?>
+	<?php if (is_array($question_list) && count($question_list)): ?>
 	<div class="btn-toolbar mb-2 mb-md-0">
 		<!-- <a href="<?= base_url('ajax/new-question') ?>" class="btn btn-sm btn-outline-secondary">
 			<i data-feather="calendar"></i> Add Question
@@ -12,14 +12,16 @@
 <div class="mb-5">
     <div id="form-builder">
         <?php $i = 1; ?>
+        <?php if (is_array($question_list)): ?>
         <?php foreach ($question_list as $question): ?>
             <?php $question->question_number = $i; ?>
             <?php $this->load->view('ajax-pages/library-question-card-view', $question); ?>
             <?php $i++; ?>
         <?php endforeach; ?>
+        <?php endif; ?>
     </div>
 
-	<?php if (!count($question_list)) { ?>
+	<?php if (!is_array($question_list) || !count($question_list)) { ?>
 	<div class="text-center">		
 		<p class="lead">Library has no questions.</p>
 		<a href="<?= base_url('ajax/new-question') ?>" class="btn btn-lg btn-primary">

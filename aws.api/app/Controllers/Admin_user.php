@@ -146,9 +146,11 @@ class Admin_user extends BaseController
         $params = $this->request->getPost();
         $model = $this->db->table('admin_user_view');
 
-        $user = $model->where('email', $params['username'])->get()->getRow();
+        // Accept both 'email' and 'username' parameters
+        $email = $params['email'] ?? $params['username'] ?? null;
+        $user = $model->where('email', $email)->get()->getRow();
         if ($user) {
-            if ($params['password'] === $user->password) {
+            if (password_verify($params['password'], $user->password)) {
                 unset($user->password); // Don't return password in response
                 $response = [
                     'status'   => 200,

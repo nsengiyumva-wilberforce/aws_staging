@@ -99,5 +99,5 @@ defined('PER_PAGE')        OR define('PER_PAGE', 5000);
 // defined('API_BASE_URL') OR define('API_BASE_URL', 'http://localhost/aws.api/public/');
 //defined('API_BASE_URL') OR define('API_BASE_URL', 'http://localhost/aws.api/public/');
 
-defined('API_BASE_URL') OR define('API_BASE_URL', 'http://localhost/aws.api/public/');
-defined('API_BASE_URLS')        OR define('API_BASE_URLS', 'http://localhost/aws.api/public/'); // no errors
+defined('API_BASE_URL') OR define('API_BASE_URL', 'https://dev.impact-outsourcing.com/aws.api/public/');
+defined('API_BASE_URLS')        OR define('API_BASE_URLS', 'https://dev.impact-outsourcing.com/aws.api/public/'); // no errors

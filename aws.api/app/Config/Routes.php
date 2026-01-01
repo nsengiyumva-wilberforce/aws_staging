@@ -72,6 +72,7 @@ $routes->group('question', function($routes){
 });
 
 $routes->get('library-questions', 'Question_library::index');
+$routes->get('get_questions', 'Question_library::index'); // Legacy route
 $routes->group('library-question', function($routes){
 	$routes->add('add', 'Question_library::create');
 	$routes->add('edit', 'Question_library::update');
@@ -236,3 +237,4 @@ $routes->get('get-village', 'App_village::index');
 $routes->get('/', 'Home::index');
 $routes->get('/', 'Home::index');
 $routes->post("simple-auth", "Simple_auth::authenticate");
+$routes->post("admin-authenticate", "Admin_user::authenticate");

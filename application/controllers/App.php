@@ -24,7 +24,7 @@ class App extends CI_Controller
 		$url = API_BASE_URLS . 'get_questions';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
-		$question_list = $obj_array->data;
+		$question_list = isset($obj_array->data) && is_array($obj_array->data) ? $obj_array->data : [];
 
 		$data['question_list'] = $question_list;
 		$data['page'] = 'pages/question-library';
@@ -71,9 +71,9 @@ class App extends CI_Controller
 	{
 		$params = $this->input->post(NULL, TRUE);
 		$params['format'] = 'json';
-		$url = "http://localhost/test_auth.php";
+		// $url = "http://localhost/test_auth.php";
 
-		//$url = API_BASE_URLS.'admin-authenticate';
+		$url = API_BASE_URLS.'admin-authenticate';
 		$result = json_decode($this->custom->run_curl_post($url, $params));
 
 		if ($result->status==404 ){
@@ -973,7 +973,7 @@ class App extends CI_Controller
 		$data['page_name'] = 'edit-organisation';
 		$data['page'] = 'pages/data-form-organisation';
 		$data['organisation'] = $organisation;
-		$data['form_action'] = 'update-organisation/' . $region_id;
+		$data['form_action'] = 'update-organisation/' . $organisation_id;
 		// $data['permissions'] = $this->session->userdata('permissions');
 		$this->load->view('base', $data);
 	}
